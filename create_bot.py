@@ -1,6 +1,8 @@
 import asyncio
 import logging
 import os
+
+import asyncpg
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 
@@ -14,13 +16,28 @@ logging.basicConfig(
 load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
 if not TOKEN:
     raise ValueError("Токен не найден!")
 
-
+bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 logging.info("Бот запускается...")
+
+
+async def create_db_pool():
+    return await asyncpg.create_pool(
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        host=DB_HOST,
+        port=DB_PORT
+    )
 
 
 @dp.message(CommandStart())
@@ -42,17 +59,15 @@ async def echo(message: types.Message):
 
 
 async def main() -> None:
-    # Initialize Bot instance with default bot properties which will be passed to all API calls
-    bot = Bot(token=TOKEN)
 
-    # And the run events dispatching
+    db_pool = await create_db_pool()
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
         logging.info("Бот запущен")
-        # async start_polling(dp, skip_updates=True)
+        asyncio.run(main())
+
     except Exception as ex:
         logging.error(f"ОШИБИЩЕ {ex}")
 
