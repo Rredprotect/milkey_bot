@@ -34,10 +34,9 @@ async def create_db():
     await conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        user_id BIGINT NOT NULL,
-        first_name VARCHAR(100),
-        last_name VARCHAR(100),
-        username VARCHAR(100)
+        user_id INTEGER,
+        username VARCHAR(100),
+        request_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     await conn.close()
